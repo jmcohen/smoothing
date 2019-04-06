@@ -16,6 +16,7 @@ import time
 import datetime
 from train_utils import AverageMeter, accuracy, init_logfile, log
 from scipy.stats import norm
+import math
 
 parser = argparse.ArgumentParser(description='PyTorch ImageNet Training')
 parser.add_argument('dataset', type=str, choices=DATASETS)
@@ -90,7 +91,7 @@ def main():
 
 
 def compute_loss(outputs: torch.tensor, targets: torch.tensor, radius: float, noise_sd: float):
-    ce = cross_entropy(outputs, targets, reduction='none') / torch.log(2.0)
+    ce = cross_entropy(outputs, targets, reduction='none') / math.log(2.0)
     p = 1 - norm.cdf(radius / noise_sd)
     return soft_margin_loss(p - ce, torch.ones_like(targets)).mean()
 

@@ -2,3 +2,5 @@
 *~
 models
 .DS_Store
+*__pycache__*
+dataset_cache

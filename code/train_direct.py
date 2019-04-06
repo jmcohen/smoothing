@@ -93,7 +93,7 @@ def main():
 def compute_loss(outputs: torch.tensor, targets: torch.tensor, radius: float, noise_sd: float):
     ce = cross_entropy(outputs, targets, reduction='none') / math.log(2.0)
     p = 1 - norm.cdf(radius / noise_sd)
-    return soft_margin_loss(p - ce, torch.ones_like(targets)).mean()
+    return soft_margin_loss(p - ce, torch.ones_like(targets, dtype=torch.float32)).mean()
 
 
 def train(loader: DataLoader, model: torch.nn.Module, optimizer: Optimizer, epoch: int, radius: float,

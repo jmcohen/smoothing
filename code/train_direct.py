@@ -67,15 +67,14 @@ def main():
     logfilename = os.path.join(args.outdir, 'log.txt')
     init_logfile(logfilename, "epoch\ttime\tlr\ttrain loss\ttrain acc\ttestloss\ttest acc")
 
-    criterion = CrossEntropyLoss().cuda()
     optimizer = SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
     scheduler = StepLR(optimizer, step_size=args.lr_step_size, gamma=args.gamma)
 
     for epoch in range(args.epochs):
         scheduler.step(epoch)
         before = time.time()
-        train_loss, train_acc = train(train_loader, model, criterion, optimizer, epoch, args.radius, args.noise_sd)
-        test_loss, test_acc = test(test_loader, model, criterion, args.noise_sd)
+        train_loss, train_acc = train(train_loader, model, optimizer, epoch, args.radius, args.noise_sd)
+        test_loss, test_acc = test(test_loader, model, args.radius, args.noise_sd)
         after = time.time()
 
         log(logfilename, "{}\t{:.3}\t{:.3}\t{:.3}\t{:.3}\t{:.3}\t{:.3}".format(
@@ -90,7 +89,13 @@ def main():
         }, os.path.join(args.outdir, 'checkpoint.pth.tar'))
 
 
-def train(loader: DataLoader, model: torch.nn.Module, criterion, optimizer: Optimizer, epoch: int, radius: float,
+def compute_loss(outputs: torch.tensor, targets: torch.tensor, radius: float, noise_sd: float):
+    ce = cross_entropy(outputs, targets, reduction='none') / torch.log(2.0)
+    p = 1 - norm.cdf(radius / noise_sd)
+    return soft_margin_loss(p - ce, torch.ones_like(targets)).mean()
+
+
+def train(loader: DataLoader, model: torch.nn.Module, optimizer: Optimizer, epoch: int, radius: float,
           noise_sd: float):
     batch_time = AverageMeter()
     data_time = AverageMeter()
@@ -114,9 +119,7 @@ def train(loader: DataLoader, model: torch.nn.Module, criterion, optimizer: Opti
 
         # compute output
         outputs = model(inputs)
-        ce = cross_entropy(outputs, targets, reduction='none') / torch.log(2.0)
-        p = 1 - norm.cdf(radius / noise_sd)
-        loss = soft_margin_loss(p - ce, torch.ones_like(targets)).mean()
+        loss = compute_loss(outputs, targets, radius, noise_sd)
 
         # measure accuracy and record loss
         acc1, acc5 = accuracy(outputs, targets, topk=(1, 5))
@@ -146,7 +149,7 @@ def train(loader: DataLoader, model: torch.nn.Module, criterion, optimizer: Opti
     return (losses.avg, top1.avg)
 
 
-def test(loader: DataLoader, model: torch.nn.Module, criterion, noise_sd: float):
+def test(loader: DataLoader, model: torch.nn.Module, radius: float, noise_sd: float):
     batch_time = AverageMeter()
     data_time = AverageMeter()
     losses = AverageMeter()
@@ -170,7 +173,7 @@ def test(loader: DataLoader, model: torch.nn.Module, criterion, noise_sd: float)
 
             # compute output
             outputs = model(inputs)
-            loss = criterion(outputs, targets)
+            loss = compute_loss(outputs, targets, radius, noise_sd)
 
             # measure accuracy and record loss
             acc1, acc5 = accuracy(outputs, targets, topk=(1, 5))

@@ -32,7 +32,7 @@ args = parser.parse_args()
 
 def compute_outer_loss(outputs: torch.tensor, target: int, p: float):
     ce = compute_inner_loss(outputs, target, p)
-    return soft_margin_loss(p - ce, torch.ones_like(ce, dtype=torch.float32).cuda())
+    return soft_margin_loss(p - ce, torch.ones_like(ce, dtype=torch.float32).cuda(), reduction='none')
 
 
 def compute_inner_loss(outputs: torch.tensor, target: int, p: float):

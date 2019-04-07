@@ -111,7 +111,7 @@ if __name__ == "__main__":
         inner_loss_mean = inner_loss.mean()
 
         thing1 = inner_loss_mean > p
-        thing2 = soft_margin_loss(p - inner_loss_mean, torch.tensor(1.))
+        thing2 = soft_margin_loss(torch.tensor(p - inner_loss_mean), torch.tensor(1.)).item()
         outer_loss_mean = outer_loss.mean()
 
         print("{}\t{}\t{}\t{}\t{}\t{}".format(p, prob, inner_loss_mean, thing1, thing2, outer_loss_mean))

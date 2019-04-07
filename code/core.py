@@ -93,6 +93,7 @@ class Smooth(object):
                 counts += self._count_arr(predictions.cpu().numpy(), self.num_classes)
             return counts
 
+
     def _count_arr(self, arr: np.ndarray, length: int) -> np.ndarray:
         counts = np.zeros(length, dtype=int)
         for idx in arr:

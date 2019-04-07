@@ -1,0 +1,18 @@
+
+python code/train_direct.py cifar10 0.25 cifar_resnet110 models/cifar10/direct/noise_0.25/r_0.25  --batch 400 --noise 0.25 --gpu 0 --lr 1e-2 --lr_step_size 50
+python code/train_direct.py cifar10 0.50 cifar_resnet110 models/cifar10/direct/noise_0.25/r_0.50  --batch 400 --noise 0.25 --gpu 1 --lr 1e-2 --lr_step_size 50
+python code/train_direct.py cifar10 0.75 cifar_resnet110 models/cifar10/direct/noise_0.25/r_0.75  --batch 400 --noise 0.25 --gpu 1 --lr 1e-2 --lr_step_size 50
+
+python code/train_direct.py cifar10 0.50 cifar_resnet110 models/cifar10/direct/noise_0.50/r_0.50  --batch 400 --noise 0.50 --gpu 2 --lr 1e-2 --lr_step_size 50
+python code/train_direct.py cifar10 1.00 cifar_resnet110 models/cifar10/direct/noise_0.50/r_1.00  --batch 400 --noise 0.50 --gpu 3 --lr 1e-2 --lr_step_size 50
+
+
+
+
+python code/certify.py cifar10 models/cifar10/direct/noise_0.25/r_0.25/checkpoint.pth.tar 0.25 data/certify/cifar10/resnet110/direct/noise_0.25/r_0.25 --skip 5 --batch 400
+python code/certify.py cifar10 models/cifar10/direct/noise_0.25/r_0.50/checkpoint.pth.tar 0.25 data/certify/cifar10/resnet110/direct/noise_0.25/r_0.50 --skip 5 --batch 400
+python code/certify.py cifar10 models/cifar10/direct/noise_0.25/r_0.75/checkpoint.pth.tar 0.25 data/certify/cifar10/resnet110/direct/noise_0.25/r_0.75 --skip 5 --batch 400
+
+python code/certify.py cifar10 models/cifar10/direct/noise_0.50/r_0.50/checkpoint.pth.tar 0.50 data/certify/cifar10/resnet110/direct/noise_0.50/r_0.50 --skip 5 --batch 400
+python code/certify.py cifar10 models/cifar10/direct/noise_0.50/r_1.00/checkpoint.pth.tar 0.50 data/certify/cifar10/resnet110/direct/noise_0.50/r_1.00 --skip 5 --batch 400
+

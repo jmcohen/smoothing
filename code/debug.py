@@ -88,12 +88,14 @@ if __name__ == "__main__":
     base_classifier.load_state_dict(checkpoint['state_dict'])
     base_classifier.eval()
 
+    dataset = get_dataset(args.dataset, args.split)
+
+
     # prepare output file
     f = sys.stdout if args.outfile == 'stdout' else open(args.outfile, 'w')
-    print("idx\tlabel\tpredict\tradius\tcorrect\ttime", file=f, flush=True)
+    print("p\tprob\ttrue loss\tinner loss\tbound 1\tbound 2\tbound 3", file=f, flush=True)
 
     # iterate through the dataset
-    dataset = get_dataset(args.dataset, args.split)
     for i in range(len(dataset)):
 
         # only certify every args.skip examples, and stop after args.max examples
@@ -114,10 +116,10 @@ if __name__ == "__main__":
         inner_loss_mean = inner_loss.mean()
 
         bound1 = inner_loss_mean > p
-        bound2 = soft_margin_loss(torch.tensor(p - inner_loss_mean), torch.tensor(1.)).item()
+        bound2 = soft_margin_loss(torch.tensor(p - inner_loss_mean), torch.tensor(1.)).item() / math.log(2.0)
         bound3 = outer_loss.mean()
 
-        print("{}\t{}\t{}\t{}\t{}\t{}\t{}".format(p, prob, true_loss, inner_loss_mean, bound1, bound2, bound3), file=f, flush=True)
+        print("{:.3f}\t{:.3f}\t{}\t{:.3f}\t{}\t{:.3f}\t{:.3f}".format(p, prob, true_loss, inner_loss_mean, bound1, bound2, bound3), file=f, flush=True)
 
     if f != sys.stdout:
         f.close()

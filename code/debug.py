@@ -32,12 +32,12 @@ args = parser.parse_args()
 
 def compute_outer_loss(outputs: torch.tensor, target: int, p: float):
     ce = cross_entropy(outputs, target, reduction='none') / math.log(2.0)
-    return soft_margin_loss(p - ce, torch.ones_like(ce, dtype=torch.float32))
+    return soft_margin_loss(p - ce, torch.ones_like(ce, dtype=torch.float32).cuda())
 
 
 def compute_inner_loss(outputs: torch.tensor, target: int, p: float):
     batch_size = outputs.shape[0]
-    ce = cross_entropy(outputs, torch.ones(batch_size) * target, reduction='none') / math.log(2.0)
+    ce = cross_entropy(outputs, torch.ones(batch_size).cuda() * target, reduction='none') / math.log(2.0)
     return ce
 
 

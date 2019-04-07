@@ -13,6 +13,7 @@ from torch.nn.functional import soft_margin_loss, cross_entropy
 import math
 import numpy as np
 from math import ceil
+import sys
 
 parser = argparse.ArgumentParser(description='Certify many examples')
 parser.add_argument("dataset", choices=DATASETS, help="which dataset")
@@ -32,7 +33,7 @@ args = parser.parse_args()
 
 def compute_outer_loss(outputs: torch.tensor, target: int, p: float):
     ce = compute_inner_loss(outputs, target, p)
-    return soft_margin_loss(p - ce, torch.ones_like(ce, dtype=torch.float32).cuda(), reduction='none')
+    return soft_margin_loss(p - ce, torch.ones_like(ce, dtype=torch.float32).cuda(), reduction='none') / math.log(2.0)
 
 
 def compute_inner_loss(outputs: torch.tensor, target: int, p: float):
@@ -88,7 +89,7 @@ if __name__ == "__main__":
     base_classifier.eval()
 
     # prepare output file
-    f = open(args.outfile, 'w')
+    f = sys.stdout if args.outfile == 'stdout' else open(args.outfile, 'w')
     print("idx\tlabel\tpredict\tradius\tcorrect\ttime", file=f, flush=True)
 
     # iterate through the dataset
@@ -116,6 +117,7 @@ if __name__ == "__main__":
         bound2 = soft_margin_loss(torch.tensor(p - inner_loss_mean), torch.tensor(1.)).item()
         bound3 = outer_loss.mean()
 
-        print("{}\t{}\t{}\t{}\t{}\t{}\t{}".format(p, prob, true_loss, inner_loss_mean, bound1, bound2, bound3))
+        print("{}\t{}\t{}\t{}\t{}\t{}\t{}".format(p, prob, true_loss, inner_loss_mean, bound1, bound2, bound3), file=f, flush=True)
 
-    f.close()
+    if f != sys.stdout:
+        f.close()

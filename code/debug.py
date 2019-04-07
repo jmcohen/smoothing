@@ -77,7 +77,7 @@ def sample_noise(base_classifier, sigma, x: torch.tensor, y: int, num: int, batc
             inner_losses.extend(inner.cpu().numpy())
 
             counts += count_arr(predictions.cpu().numpy(), 10)
-        return counts, np.concatenate(inner_losses).mean(), np.concatenate(outer_losses).mean()
+        return counts, inner_losses.mean(), outer_losses.mean()
 
 
 if __name__ == "__main__":

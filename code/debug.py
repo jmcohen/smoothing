@@ -93,7 +93,7 @@ if __name__ == "__main__":
 
     # prepare output file
     f = sys.stdout if args.outfile == 'stdout' else open(args.outfile, 'w')
-    print("p\tprob\terr\tinn. loss\tbound 1\tbound 2\tbound 3", file=f, flush=True)
+    print("p\tprob\terr\texp\tbnd 1\tbnd 2\tbnd 3", file=f, flush=True)
 
     # iterate through the dataset
     for i in range(len(dataset)):
@@ -112,10 +112,10 @@ if __name__ == "__main__":
         counts, inner_loss, outer_loss = sample_noise(base_classifier, args.sigma, x, label, args.N, args.batch, p)
 
         prob = (args.N - counts[label]) / args.N
-        true_loss = prob > p
+        true_loss = int(prob > p)
         inner_loss_mean = inner_loss.mean()
 
-        bound1 = inner_loss_mean > p
+        bound1 = int(inner_loss_mean > p)
         bound2 = soft_margin_loss(torch.tensor(p - inner_loss_mean), torch.tensor(1.)).item() / math.log(2.0)
         bound3 = outer_loss.mean()
 

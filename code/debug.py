@@ -91,13 +91,13 @@ if __name__ == "__main__":
     dataset = get_dataset(args.dataset, args.split)
 
 
-    bound3_avg = 0
+    bound3_total = 0
     count = 0
 
 
     # prepare output file
     f = sys.stdout if args.outfile == 'stdout' else open(args.outfile, 'w')
-    print("p\tprob\terr\texp\tbnd 1\tbnd 2\tbnd 3", file=f, flush=True)
+    print("p\tprob\terr\texp\tbnd 1\tbnd 2\tbnd 3\trun avg", file=f, flush=True)
 
     # iterate through the dataset
     for i in range(len(dataset)):
@@ -124,10 +124,10 @@ if __name__ == "__main__":
         bound3 = outer_loss.mean()
 
         count += 1
-        bound3_avg += bound3
+        bound3_total += bound3
 
         print("{:.3f}\t{:.3f}\t{}\t{:.3f}\t{}\t{:.3f}\t{:.3f}\t{:.3f}".format(p, prob, true_loss, inner_loss_mean,
-                                                                              bound1, bound2, bound3, bound3_avg), file=f, flush=True)
+                                                                              bound1, bound2, bound3, bound3_total/count), file=f, flush=True)
 
     if f != sys.stdout:
         f.close()

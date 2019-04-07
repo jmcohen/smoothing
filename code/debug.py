@@ -93,7 +93,7 @@ if __name__ == "__main__":
 
     # prepare output file
     f = sys.stdout if args.outfile == 'stdout' else open(args.outfile, 'w')
-    print("p\tprob\ttrue loss\tinner loss\tbound 1\tbound 2\tbound 3", file=f, flush=True)
+    print("p\tprob\terr\tinn. loss\tbound 1\tbound 2\tbound 3", file=f, flush=True)
 
     # iterate through the dataset
     for i in range(len(dataset)):

@@ -91,6 +91,10 @@ if __name__ == "__main__":
     dataset = get_dataset(args.dataset, args.split)
 
 
+    bound3_avg = 0
+    count = 0
+
+
     # prepare output file
     f = sys.stdout if args.outfile == 'stdout' else open(args.outfile, 'w')
     print("p\tprob\terr\texp\tbnd 1\tbnd 2\tbnd 3", file=f, flush=True)
@@ -119,7 +123,11 @@ if __name__ == "__main__":
         bound2 = soft_margin_loss(torch.tensor(p - inner_loss_mean), torch.tensor(1.)).item() / math.log(2.0)
         bound3 = outer_loss.mean()
 
-        print("{:.3f}\t{:.3f}\t{}\t{:.3f}\t{}\t{:.3f}\t{:.3f}".format(p, prob, true_loss, inner_loss_mean, bound1, bound2, bound3), file=f, flush=True)
+        count += 1
+        bound3_avg += bound3
+
+        print("{:.3f}\t{:.3f}\t{}\t{:.3f}\t{}\t{:.3f}\t{:.3f}\t{:.3f}".format(p, prob, true_loss, inner_loss_mean,
+                                                                              bound1, bound2, bound3, bound3_avg), file=f, flush=True)
 
     if f != sys.stdout:
         f.close()

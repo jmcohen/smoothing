@@ -207,3 +207,16 @@ if __name__ == "__main__":
             Line(ApproximateAccuracy("data/certify/imagenet/resnet50/noise_0.50/test/sigma_0.50"), "Approximate"),
             Line(HighProbAccuracy("data/certify/imagenet/resnet50/noise_0.50/test/sigma_0.50", 0.001, 0.001), "High-Prob"),
         ])
+    plot_certified_accuracy(
+        "analysis/plots/cifar_direct_train_0.25", "CIFAR, direct train, noise 0.25", 1, [
+            Line(ApproximateAccuracy("data/certify/cifar10/resnet110/direct/noise_0.25/r_0.25"), "radius 0.25"),
+            Line(ApproximateAccuracy("data/certify/cifar10/resnet110/direct/noise_0.25/r_0.50"), "radius 0.50"),
+            Line(ApproximateAccuracy("data/certify/cifar10/resnet110/direct/noise_0.25/r_0.75"), "radius 0.75"),
+            Line(ApproximateAccuracy("data/certify/cifar10/resnet110/noise_0.25/test/sigma_0.25"), "normal train")
+        ])
+    plot_certified_accuracy(
+        "analysis/plots/cifar_direct_train_0.50", "CIFAR, direct train, noise 0.50", 1, [
+            Line(ApproximateAccuracy("data/certify/cifar10/resnet110/direct/noise_0.50/r_0.50"), "radius 0.50"),
+            Line(ApproximateAccuracy("data/certify/cifar10/resnet110/direct/noise_0.50/r_1.00"), "radius 1.00"),
+            Line(ApproximateAccuracy("data/certify/cifar10/resnet110/noise_0.50/test/sigma_0.50"), "normal train")
+        ])

@@ -85,6 +85,7 @@ if __name__ == "__main__":
     checkpoint = torch.load(args.base_classifier)
     base_classifier = get_architecture(checkpoint["arch"], args.dataset)
     base_classifier.load_state_dict(checkpoint['state_dict'])
+    base_classifier.eval()
 
     # prepare output file
     f = open(args.outfile, 'w')
@@ -108,12 +109,13 @@ if __name__ == "__main__":
         counts, inner_loss, outer_loss = sample_noise(base_classifier, args.sigma, x, label, args.N, args.batch, p)
 
         prob = (args.N - counts[label]) / args.N
+        true_loss = prob > p
         inner_loss_mean = inner_loss.mean()
 
-        thing1 = inner_loss_mean > p
-        thing2 = soft_margin_loss(torch.tensor(p - inner_loss_mean), torch.tensor(1.)).item()
-        outer_loss_mean = outer_loss.mean()
+        bound1 = inner_loss_mean > p
+        bound2 = soft_margin_loss(torch.tensor(p - inner_loss_mean), torch.tensor(1.)).item()
+        bound3 = outer_loss.mean()
 
-        print("{}\t{}\t{}\t{}\t{}\t{}".format(p, prob, inner_loss_mean, thing1, thing2, outer_loss_mean))
+        print("{}\t{}\t{}\t{}\t{}\t{}\t{}".format(p, prob, true_loss, inner_loss_mean, bound1, bound2, bound3))
 
     f.close()

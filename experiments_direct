@@ -16,3 +16,9 @@ python code/certify.py cifar10 models/cifar10/direct/noise_0.25/r_0.75/checkpoin
 python code/certify.py cifar10 models/cifar10/direct/noise_0.50/r_0.50/checkpoint.pth.tar 0.50 data/certify/cifar10/resnet110/direct/noise_0.50/r_0.50 --skip 5 --batch 400
 python code/certify.py cifar10 models/cifar10/direct/noise_0.50/r_1.00/checkpoint.pth.tar 0.50 data/certify/cifar10/resnet110/direct/noise_0.50/r_1.00 --skip 5 --batch 400
 
+
+python code/certify.py cifar10 models/cifar10/direct/noise_0.50/r_0.50/checkpoint.pth.tar 0.50 data/certify/cifar10/resnet110/direct/noise_0.50/r_0.50 --skip 5 --batch 400
+
+
+python code/certify.py cifar10 ../smoothing/models/cifar10/resnet110/noise_0.25/checkpoint.pth.tar 0.25 data/certify/cifar10/resnet110/direct/noise_0.25/normal --skip 5 --batch 400
+python code/certify.py cifar10 ../smoothing/models/cifar10/resnet110/noise_0.50/checkpoint.pth.tar 0.50 data/certify/cifar10/resnet110/direct/noise_0.50/normal --skip 5 --batch 400

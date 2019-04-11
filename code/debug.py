@@ -36,9 +36,9 @@ def compute_outer_loss(outputs: torch.tensor, target: int, p: float):
     return soft_margin_loss(p - ce, torch.ones_like(ce, dtype=torch.float32).cuda(), reduction='none') / math.log(2.0)
 
 
-def compute_inner_loss(outputs: torch.tensor, target: int):
+def compute_inner_loss(outputs: torch.tensor, target: int, t: float):
     batch_size = outputs.shape[0]
-    ce = cross_entropy(outputs, torch.ones(batch_size, dtype=torch.long).cuda() * target, reduction='none') / math.log(2.0)
+    ce = cross_entropy(t*outputs, torch.ones(batch_size, dtype=torch.long).cuda() * target, reduction='none') / math.log(2.0)
     return ce
 
 
@@ -60,6 +60,9 @@ def sample_noise(base_classifier, sigma, x: torch.tensor, y: int, num: int, batc
     outer_losses = []
     inner_losses = []
 
+    t_s = [1e-2, 1e-1, 1, 10, 100]
+    inner_losses_t = [[] for t in t_s]
+
     with torch.no_grad():
         counts = np.zeros(10, dtype=int)
         for _ in range(ceil(num / batch_size)):
@@ -71,14 +74,19 @@ def sample_noise(base_classifier, sigma, x: torch.tensor, y: int, num: int, batc
             outputs = base_classifier(batch + noise)
             predictions = outputs.argmax(1)
 
-            inner = compute_inner_loss(outputs, y)
+            inner = compute_inner_loss(outputs, y, 1.0)
             outer = compute_outer_loss(outputs, y, p)
 
             outer_losses.extend(outer.cpu().numpy())
             inner_losses.extend(inner.cpu().numpy())
 
+            for j in enumerate(inner_losses_t):
+                inner_losses_t[j].append(compute_inner_loss(outputs, y, t_s[j]))
+
             counts += count_arr(predictions.cpu().numpy(), 10)
-        return counts, np.array(inner_losses).mean(), np.array(outer_losses).mean()
+
+        inner_losses_t_means = [np.array(x).mean() for x in inner_losses_t]
+        return counts, np.array(inner_losses).mean(), np.array(outer_losses).mean(), inner_losses_t_means
 
 
 if __name__ == "__main__":
@@ -113,13 +121,15 @@ if __name__ == "__main__":
         p = 1.0 - norm.cdf(args.radius / args.sigma)
 
         x = x.cuda()
-        counts, inner_loss, bound3 = sample_noise(base_classifier, args.sigma, x, label, args.N, args.batch, p)
+        counts, inner_loss, bound3, t_means = sample_noise(base_classifier, args.sigma, x, label, args.N, args.batch, p)
 
         prob = (args.N - counts[label]) / args.N
         true_loss = int(prob > p)
 
         bound1 = int(inner_loss > p)
         bound2 = soft_margin_loss(torch.tensor(p - inner_loss), torch.tensor(1.)).item() / math.log(2.0)
+
+        print(t_means)
 
         count += 1
         bound3_total += bound3

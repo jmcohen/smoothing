@@ -80,7 +80,7 @@ def sample_noise(base_classifier, sigma, x: torch.tensor, y: int, num: int, batc
             outer_losses.extend(outer.cpu().numpy())
             inner_losses.extend(inner.cpu().numpy())
 
-            for j in enumerate(inner_losses_t):
+            for j in range(len(inner_losses_t)):
                 inner_losses_t[j].append(compute_inner_loss(outputs, y, t_s[j]))
 
             counts += count_arr(predictions.cpu().numpy(), 10)

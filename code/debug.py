@@ -60,7 +60,7 @@ def sample_noise(base_classifier, sigma, x: torch.tensor, y: int, num: int, batc
     outer_losses = []
     inner_losses = []
 
-    t_s = [1e-2, 1e-1, 1, 10, 100]
+    t_s = [0.1, 0.2, 0.4, 0.8, 1, 1.5, 2.0, 5.0]
     inner_losses_t = [[] for t in t_s]
 
     with torch.no_grad():

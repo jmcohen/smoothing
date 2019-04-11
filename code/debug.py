@@ -36,7 +36,7 @@ def compute_outer_loss(outputs: torch.tensor, target: int, p: float):
     return soft_margin_loss(p - ce, torch.ones_like(ce, dtype=torch.float32).cuda(), reduction='none') / math.log(2.0)
 
 
-def compute_inner_loss(outputs: torch.tensor, target: int, p: float):
+def compute_inner_loss(outputs: torch.tensor, target: int):
     batch_size = outputs.shape[0]
     ce = cross_entropy(outputs, torch.ones(batch_size, dtype=torch.long).cuda() * target, reduction='none') / math.log(2.0)
     return ce
@@ -71,7 +71,7 @@ def sample_noise(base_classifier, sigma, x: torch.tensor, y: int, num: int, batc
             outputs = base_classifier(batch + noise)
             predictions = outputs.argmax(1)
 
-            inner = compute_inner_loss(outputs, y, p)
+            inner = compute_inner_loss(outputs, y)
             outer = compute_outer_loss(outputs, y, p)
 
             outer_losses.extend(outer.cpu().numpy())
@@ -113,20 +113,18 @@ if __name__ == "__main__":
         p = 1.0 - norm.cdf(args.radius / args.sigma)
 
         x = x.cuda()
-        counts, inner_loss, outer_loss = sample_noise(base_classifier, args.sigma, x, label, args.N, args.batch, p)
+        counts, inner_loss, bound3 = sample_noise(base_classifier, args.sigma, x, label, args.N, args.batch, p)
 
         prob = (args.N - counts[label]) / args.N
         true_loss = int(prob > p)
-        inner_loss_mean = inner_loss.mean()
 
-        bound1 = int(inner_loss_mean > p)
-        bound2 = soft_margin_loss(torch.tensor(p - inner_loss_mean), torch.tensor(1.)).item() / math.log(2.0)
-        bound3 = outer_loss.mean()
+        bound1 = int(inner_loss > p)
+        bound2 = soft_margin_loss(torch.tensor(p - inner_loss), torch.tensor(1.)).item() / math.log(2.0)
 
         count += 1
         bound3_total += bound3
 
-        print("{:.3f}\t{:.3f}\t{}\t{:.3f}\t{}\t{:.3f}\t{:.3f}\t{:.3f}".format(p, prob, true_loss, inner_loss_mean,
+        print("{:.3f}\t{:.3f}\t{}\t{:.3f}\t{}\t{:.3f}\t{:.3f}\t{:.3f}".format(p, prob, true_loss, inner_loss,
                                                                               bound1, bound2, bound3, bound3_total/count), file=f, flush=True)
 
     if f != sys.stdout:

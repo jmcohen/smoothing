@@ -97,6 +97,8 @@ def compute_loss(outputs: torch.tensor, targets: torch.tensor, radius: float, no
         ce = cross_entropy(outputs*t, targets, reduction='none') / math.log(2.0)
         ces.append(ce)
     min_ce, _ = torch.min(torch.stack(ces), dim=0)
+
+    print(ces)
     p = 1 - norm.cdf(radius / noise_sd)
     return soft_margin_loss(p - min_ce, torch.ones_like(targets, dtype=torch.float32)).mean()
 

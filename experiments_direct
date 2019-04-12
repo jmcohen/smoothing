@@ -25,3 +25,4 @@ python code/certify.py cifar10 ../smoothing/models/cifar10/resnet110/noise_0.50/
 
 
 python code/train_direct_t.py cifar10 0.25 cifar_resnet110 models/cifar10/direct/noise_0.25/r_0.25_vary_t  --batch 400 --noise 0.25 --gpu 0 --lr 1e-2 --lr_step_size 50
+python code/train_direct_many.py cifar10 0.25 cifar_resnet110 models/cifar10/direct/noise_0.25/r_0.25_many  --batch 30 --noise 0.25 --gpu 1 --lr 1e-2 --lr_step_size 50

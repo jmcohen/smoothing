@@ -80,7 +80,7 @@ def main():
 
         log(logfilename, "{}\t{:.3}\t{:.3}\t{:.3}\t{:.3}\t{:.3}\t{:.3}".format(
             epoch, str(datetime.timedelta(seconds=(after - before))),
-            scheduler.get_lr()[0], train_loss, 0, test_loss, 0))
+            scheduler.get_lr()[0], train_loss, 0.0, test_loss, 0.0))
 
         torch.save({
             'epoch': epoch + 1,

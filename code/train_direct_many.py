@@ -99,7 +99,7 @@ def compute_loss(model: torch.nn.Module, inputs: torch.tensor, targets: torch.te
     repeated_inputs = repeated_inputs + torch.randn_like(repeated_inputs, device='cuda') * noise_sd
     unrolled = repeated_inputs.reshape(nreps * batch_size, * inputs.shape[1:])
     outputs = model(unrolled)
-    ce_unrolled = cross_entropy(outputs, targets, reduction='none') / math.log(2.0)
+    ce_unrolled = cross_entropy(outputs, targets.repeat((nreps, 1)).reshape(-1), reduction='none') / math.log(2.0)
     ce = ce_unrolled.reshape(nreps, batch_size, *inputs.shape[1:]).mean(dim=0)
     p = 1 - norm.cdf(radius / noise_sd)
     return soft_margin_loss(p - ce, torch.ones_like(targets, dtype=torch.float32)).mean()
